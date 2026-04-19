@@ -1,0 +1,144 @@
+$schema: (
+  color-primary: #3498db,
+  color-secondary: #2ecc71,
+  color-accent: #e74c3c,
+  color-background: #ecf0f1,
+  color-text: #2c3e50,
+);
+
+.error {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  overflow: hidden;
+  z-index: 1;
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    z-index: 10;
+    padding: 3rem 2rem;
+    max-width: 600px;
+
+    /* Efek Glassmorphism */
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+  }
+
+  &__image {
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: 1.5rem;
+    /* Animasi gambar melayang */
+    animation: float 6s ease-in-out infinite;
+  }
+
+  &__title {
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+
+    /* Teks dengan gradasi warna dari skema colors.scss */
+    background: linear-gradient(
+      90deg,
+      map-get($schema, color-primary),
+      map-get($schema, color-accent)
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  &__description {
+    font-size: 16px;
+    line-height: 1.6;
+    color: map-get($schema, color-text);
+    opacity: 0.8;
+    margin-bottom: 2.5rem;
+    padding: 0 1rem;
+  }
+
+  &__button {
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    background: linear-gradient(
+      135deg,
+      map-get($schema, color-primary) 0%,
+      #2980b9 100%
+    );
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(52, 152, 219, 0.5);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+
+  /* Dekorasi Abstract Bulat (Blobs) di Background */
+  &__blob1 {
+    position: absolute;
+    top: -15%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    background: rgba(52, 152, 219, 0.2); // Menggunakan warna primary
+    filter: blur(90px);
+    border-radius: 50%;
+    z-index: 0;
+    animation: pulse 8s infinite alternate;
+  }
+
+  &__blob2 {
+    position: absolute;
+    bottom: -15%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: rgba(231, 76, 60, 0.15); // Menggunakan warna accent
+    filter: blur(90px);
+    border-radius: 50%;
+    z-index: 0;
+    animation: pulse 6s infinite alternate-reverse;
+  }
+}
+
+/* --- KEYFRAMES ANIMATION --- */
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  100% {
+    transform: scale(1.1) translate(20px, 20px);
+  }
+}
