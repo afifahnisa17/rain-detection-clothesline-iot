@@ -198,7 +198,7 @@ const TampilanHomepage = ({ weathers }: { weathers: WeatherData[] }) => {
                 ⚠️ Kondisi cukup baik untuk menjemur pakaian.
               </div>
             ) : (
-              <div className={styles.statusBannerError}>
+              <div className={styles.statusBannerDanger}>
                 ✗ Kondisi tidak baik untuk menjemur pakaian.
               </div>
             )}
