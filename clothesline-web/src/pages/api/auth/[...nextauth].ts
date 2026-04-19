@@ -26,13 +26,14 @@ export const authOptions: NextAuthOptions = {
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
-          user.password
+          user.password,
         );
 
         if (!isPasswordValid) return null;
 
         return {
           id: user.id,
+          name: user.fullname,
           email: user.email,
           fullname: user.fullname,
           role: user.role,
@@ -78,6 +79,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account }: any) {
       // credentials login
       if (account?.provider === "credentials" && user) {
+        token.name = user.name ?? user.fullname;
         token.email = user.email;
         token.fullname = user.fullname;
         token.role = user.role;
@@ -85,6 +87,7 @@ export const authOptions: NextAuthOptions = {
 
       // OAuth login (tanpa API call!)
       if (account?.provider === "google" || account?.provider === "github") {
+        token.name = user.name;
         token.email = user.email;
         token.fullname = user.name;
         token.image = user.image;
@@ -95,6 +98,7 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }: any) {
+      session.user.name = token.name ?? token.fullname;
       session.user.email = token.email;
       session.user.fullname = token.fullname;
       session.user.image = token.image;

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./homepage.module.scss";
 import { useSession, signIn, signOut } from "next-auth/react";
-import Image from "next/image";
 import {
   FaMapMarkerAlt,
   FaThermometerHalf,
@@ -9,7 +8,6 @@ import {
   FaWind,
   FaCloud,
   FaCloudSun,
-  FaSignOutAlt,
   FaSun,
   FaClock,
   FaCalendarAlt,
@@ -84,7 +82,9 @@ const TampilanHomepage = ({ weathers }: { weathers: WeatherData[] }) => {
                   </button> */}
           {data ? (
             <>
-              <span className={styles.userName}>{data.user?.name}</span>
+              <span className={styles.userName}>
+                {data.user?.name || (data.user as any)?.fullname || "User"}
+              </span>
               {/* <div className={styles.navbar__user}>
                         Welcome, {data.user?.fullname}
                         {data.user.image && (
