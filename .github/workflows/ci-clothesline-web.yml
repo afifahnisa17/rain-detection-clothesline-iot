@@ -1,16 +1,28 @@
-name: CI
+name: CI - clothesline-web
 
 on:
+  workflow_dispatch:
   pull_request:
+    paths:
+      - 'clothesline-web/**'
+      - '.github/workflows/ci-clothesline-web.yml'
+      - '.github/workflows/cd-clothesline-web-vercel.yml'
   push:
     branches:
-      - "**"
+      - main
+    paths:
+      - 'clothesline-web/**'
+      - '.github/workflows/ci-clothesline-web.yml'
+      - '.github/workflows/cd-clothesline-web-vercel.yml'
 
 jobs:
   lint-and-build:
     name: Lint and Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: clothesline-web
 
     steps:
       - name: Checkout repository
@@ -21,6 +33,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: clothesline-web/package-lock.json
 
       - name: Install dependencies
         run: npm ci

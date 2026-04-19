@@ -41,10 +41,12 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/b
 
 ## CI/CD with GitHub Actions
 
-This repository now includes two workflows:
+Because `clothesline-web` is a subfolder inside the `rain-detection-clothesline-iot` repository, workflows are placed at the repository root (`/.github/workflows`) and run commands from the `clothesline-web` directory.
 
-- `.github/workflows/ci.yml`: runs on every push and pull request to execute lint and build checks.
-- `.github/workflows/cd-vercel.yml`: deploys to Vercel Production on push to `main` (or manual trigger via `workflow_dispatch`).
+This repository now includes two workflows at the root:
+
+- `.github/workflows/ci-clothesline-web.yml`: runs lint and build checks for changes in `clothesline-web/**`.
+- `.github/workflows/cd-clothesline-web-vercel.yml`: deploys to Vercel Production after CI succeeds on `main` (or manual trigger via `workflow_dispatch`).
 
 ### Required GitHub Secrets for CD
 
