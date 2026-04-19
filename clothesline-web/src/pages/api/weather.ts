@@ -5,9 +5,10 @@ export default async function handler(
     res: NextApiResponse
 ) {
     // Koordinat Malang
-    const lat = req.query.lat || -7.58;
-    const lon = req.query.lon || 111.5;
-    const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,precipitation,cloudcover`)
+    const lat = req.query.lat || -7.97;
+    const lon = req.query.lon || 112.63;
+    
+    const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,precipitation,cloudcover,wind_speed_10m`)
 
     const data = await response.json()
 
@@ -40,6 +41,7 @@ export default async function handler(
             humidity: data.hourly.relative_humidity_2m[closestIndex],
             precipitation: data.hourly.precipitation[closestIndex],
             cloudcover: data.hourly.cloudcover[closestIndex],
+            windspeed: data.hourly.wind_speed_10m[closestIndex], 
         }
     ])
 }

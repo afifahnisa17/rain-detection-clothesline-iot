@@ -148,6 +148,25 @@ $text-muted: #64748b;
   font-weight: bold;
 }
 
+.badgeKurangOptimal { 
+    background: #fcfbdc; 
+    color: #aa7511; 
+    padding: 4px 10px; 
+    border-radius: 20px; 
+    font-size: 0.7rem; 
+    font-weight: bold;
+    width: fit-content; 
+    display: inline-block;
+    white-space: nowrap; }
+
+.badgeBuruk { 
+    background: #fcdcdc; 
+    color: #aa1111; 
+    padding: 4px 10px; 
+    border-radius: 20px; 
+    font-size: 0.7rem; 
+    font-weight: bold; }
+
 .mapArea {
   height: 160px;
   background: #e2e8f0;
@@ -169,23 +188,10 @@ $text-muted: #64748b;
 }
 
 .weatherMain {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 1.5rem 0;
-  .tempDisplay {
-    font-size: 2.8rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    small {
-      font-size: 1.2rem;
-    }
-  }
-  .sunIcon {
-    font-size: 3.5rem;
-    color: #fbbf24;
-  }
+    display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0;
+    .tempDisplay { font-size: 2.8rem; font-weight: 800; display: flex; align-items: center; small { font-size: 1.2rem; } }
+    .sunIcon { font-size: 3.5rem; color: #fbbf24; } .cloudyIcon { font-size: 3.5rem; color: #93b6f3; } .cloudySunIcon { font-size: 3.5rem; color: #84a9f7; }
+    .rainIcon { font-size: 3.5rem; color: #93b6f3; } .rainnyCloudyIcon { font-size: 3.5rem; color: #84a9f7; }
 }
 
 .weatherGrid {
@@ -309,3 +315,9 @@ $text-muted: #64748b;
   width: 100%;
   text-align: center;
 }
+.textGreen { color: $green; }
+.iconPurple { color: $purple; margin-right: 10px; }
+.cardCaption { font-size: 0.8rem; color: $text-muted; line-height: 1.5; margin: 0; }
+.statusBannerSuccess { font-size: 0.8rem; color: #15803d; background: #dcfce7; padding: 10px; border-radius: 8px; width: 100%; text-align: center; }
+.statusBannerWarning { font-size: 0.8rem; color: #b87903; background: #fcf9dc; padding: 10px; border-radius: 8px; width: 100%; text-align: center; }
+.statusBannerDanger { font-size: 0.8rem; color: #b80303; background: #fcdcdc; padding: 10px; border-radius: 8px; width: 100%; text-align: center; }
