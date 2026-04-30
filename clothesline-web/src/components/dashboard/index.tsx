@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { ModeToggle } from "@/components/mode-toggle"
 import {
@@ -39,6 +39,16 @@ const chartData = [
 export default function Dashboard() {
   const [servoMode, setServoMode] = useState("auto")
   const [servoState, setServoState] = useState("extended")
+  const [mounted, setMounted] = useState(false)
+  const [time, setTime] = useState(new Date())
+
+  useEffect(() => {
+    setMounted(true)
+    const timer = setInterval(() => {
+      setTime(new Date())
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
 
   return (
     <SidebarProvider>
@@ -61,7 +71,19 @@ export default function Dashboard() {
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
-            <ModeToggle />
+            <div className="flex items-center gap-4">
+              {mounted && (
+                <div className="hidden sm:flex flex-col items-end justify-center h-full">
+                  <div className="font-semibold text-sm text-foreground leading-tight">
+                    {time.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground font-medium leading-tight">
+                    {time.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}
+                  </div>
+                </div>
+              )}
+              <ModeToggle />
+            </div>
           </div>
         </header>
 
@@ -138,7 +160,7 @@ export default function Dashboard() {
               </div>
 
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 w-full">
-                <Card className="col-span-4 rounded-2xl border-none shadow-sm bg-white dark:bg-zinc-950">
+                <Card className="md:col-span-2 lg:col-span-4 rounded-2xl border-none shadow-sm bg-white dark:bg-zinc-950">
                   <CardHeader>
                     <CardTitle>Hourly Sensor Data</CardTitle>
                     <CardDescription>Temperature, Humidity and Light progression.</CardDescription>
@@ -165,7 +187,7 @@ export default function Dashboard() {
                   </CardContent>
                 </Card>
 
-                <Card className="col-span-3 rounded-2xl border-none shadow-sm bg-white dark:bg-zinc-950">
+                <Card className="md:col-span-2 lg:col-span-3 rounded-2xl border-none shadow-sm bg-white dark:bg-zinc-950">
                   <CardHeader>
                     <CardTitle>Servo Status</CardTitle>
                     <CardDescription>Current clothesline position</CardDescription>
