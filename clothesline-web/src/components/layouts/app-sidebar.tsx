@@ -9,7 +9,8 @@ import {
   Settings,
   PlayCircle,
   BarChart3,
-  LayoutDashboard
+  LayoutDashboard,
+  History
 } from "lucide-react"
 
 import { NavMain } from "@/components/layouts/nav-main"
@@ -40,20 +41,15 @@ const data = {
   ],
   navMain: [
     {
-      title: "Overview",
+      title: "Dashboard",
       url: "/dashboard",
       icon: LayoutDashboard,
       isActive: true,
-      items: [
-        {
-          title: "Dashboard",
-          url: "/dashboard",
-        },
-        {
-          title: "Historical Data",
-          url: "/dashboard/history",
-        }
-      ],
+    },
+    {
+      title: "Historical Data",
+      url: "/dashboard/history",
+      icon: History,
     },
     {
       title: "Control Panel",

@@ -140,7 +140,6 @@ const Analytics = () => {
 // Menggabungkan halaman ke dalam Layout Dashboard utama
 Analytics.getLayout = function getLayout(page: ReactElement) {
   const breadcrumbs = [
-    { label: "Dashboard", href: "/dashboard" },
     { label: "System Analytics" },
   ];
 

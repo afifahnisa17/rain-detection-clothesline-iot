@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -48,7 +49,9 @@ export function DashboardHeader({ breadcrumbs }: DashboardHeaderProps) {
                                         {index === breadcrumbs.length - 1 ? (
                                             <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
                                         ) : (
-                                            <BreadcrumbLink href={crumb.href}>{crumb.label}</BreadcrumbLink>
+                                            <BreadcrumbLink asChild>
+                                                <Link href={crumb.href || "#"}>{crumb.label}</Link>
+                                            </BreadcrumbLink>
                                         )}
                                     </BreadcrumbItem>
                                     {index < breadcrumbs.length - 1 && (

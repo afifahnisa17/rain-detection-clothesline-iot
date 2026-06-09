@@ -15,10 +15,9 @@ const History = () => {
 }
 
 History.getLayout = function getLayout(page: ReactElement) {
-    const breadcrumbs = [
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "History" },
-];
+  const breadcrumbs = [
+    { label: "Historical Data" },
+  ];
     return (
         <DashboardLayout breadcrumbs={breadcrumbs}>
             {page}

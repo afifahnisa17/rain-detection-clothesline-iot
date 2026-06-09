@@ -15,7 +15,7 @@ import {
   Lora, Merriweather, Source_Code_Pro, IBM_Plex_Mono,
   Space_Grotesk
 } from "next/font/google";
-import { Toast } from "radix-ui";
+
 import { Toaster } from "@/components/ui/sonner";
 
 const fontInter = Inter({ subsets: ["latin"], display: 'swap' });

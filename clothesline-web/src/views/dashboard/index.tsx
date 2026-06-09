@@ -14,7 +14,16 @@ import {
 } from "lucide-react";
 import { ServoControl } from "@/components/custom/servo-control";
 import { ConfigurationThreshold } from "@/components/custom/config-threshold";
-import { SensorChart } from "@/components/custom/sensor-chart";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const SensorChart = dynamic(
+  () => import("@/components/custom/sensor-chart").then((mod) => mod.SensorChart),
+  { 
+    ssr: false, 
+    loading: () => <Skeleton className="h-[350px] w-full rounded-xl bg-zinc-200 dark:bg-zinc-800" /> 
+  }
+);
 import { useMqtt } from "@/contexts/mqtt-context";
 import { formatNum } from "@/lib/format-number";
 import { StatCard } from "@/components/custom/stat-card";
@@ -25,7 +34,7 @@ export default function Dashboard() {
   
   // LOGIKA GABUNGAN: LDR + WAKTU (FRONTEND)
   const getRealKondisi = () => {
-    const kondisiRaw = latestData?.kondisi || "Mendeteksi...";
+    const kondisiRaw = latestData?.kondisi || lastActionData?.kondisi || "———";
     
     // Ambil jam saat ini dari sistem/browser user (format 0-23)
     const currentHour = new Date().getHours();
@@ -104,11 +113,11 @@ export default function Dashboard() {
 
   return (
     <>
-      <div className="flex flex-1 flex-col gap-4 p-3 md:p-8 pt-4">
+      <div className="flex flex-1 flex-col gap-4 p-3 md:px-8 md:pb-8 pt-4">
         <Tabs defaultValue="overview" className="w-full">
           <TabsList variant="line" className="flex justify-start overflow-x-auto no-scrollbar">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="control">Servo Control</TabsTrigger>
+            <TabsTrigger value="control">Control Panel</TabsTrigger>
             <TabsTrigger value="config">Configuration</TabsTrigger>
           </TabsList>
 

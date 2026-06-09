@@ -14,7 +14,6 @@ const SystemLogs = () => {
 
 SystemLogs.getLayout = function getLayout(page: ReactElement) {
   const breadcrumbs = [
-    { label: "Dashboard", href: "/dashboard" },
     { label: "System Logs" },
   ];
 

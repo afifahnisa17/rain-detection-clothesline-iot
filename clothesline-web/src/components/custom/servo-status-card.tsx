@@ -99,7 +99,7 @@ export function StatusCard({
           iconColor: "text-zinc-400",
           borderColor: "border-blue-500",
           glowColor: "bg-zinc-400",
-          statusText: "Mendeteksi...",
+          statusText: "--",
           animation: "",
         };
     }
@@ -176,11 +176,6 @@ export function StatusCard({
                 <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">
                   {isInside ? "TERLINDUNGI" : "MENJEMUR"}
                 </span>
-
-                {/* Weather Label */}
-                <span className="mt-2 text-xs font-medium text-center">
-                  {weatherUI.statusText}
-                </span>
               </div>
             </div>
           </div>
@@ -192,12 +187,14 @@ export function StatusCard({
                 Kondisi Lingkungan
               </span>
               <span className={`text-lg font-bold ${weatherUI.iconColor}`}>
-                {kondisiCuaca || "Mendeteksi..."}
+                {kondisiCuaca || "Tidak ada data"}
               </span>
               <span className="text-xs text-muted-foreground mt-1">
-                {(kondisiCuaca === "Mendung" || kondisiCuaca === "Gerimis" || kondisiCuaca === "Hujan Deras")
-                  ? "Jemuran ditarik otomatis"
-                  : "Sistem berjalan normal"}
+                {!kondisiCuaca
+                  ? "Menunggu data cuaca..."
+                  : ((kondisiCuaca === "Mendung" || kondisiCuaca === "Gerimis" || kondisiCuaca === "Hujan Deras")
+                    ? "Jemuran ditarik otomatis"
+                    : "Sistem berjalan normal")}
               </span>
             </div>
             {/* <div className={`p-3 rounded-full bg-opacity-10 dark:bg-opacity-20 ${weatherUI.glowColor}`}>

@@ -14,7 +14,6 @@ const Settings = () => {
 
 Settings.getLayout = function getLayout(page: ReactElement) {
   const breadcrumbs = [
-    { label: "Dashboard", href: "/dashboard" },
     { label: "Configuration" },
   ];
 

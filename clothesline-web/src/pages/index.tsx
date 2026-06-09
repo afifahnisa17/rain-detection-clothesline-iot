@@ -1,11 +1,14 @@
 import Link from "next/link"
 import { useSession } from "next-auth/react"
-import { CloudRain, Sun, Wind, Activity, CheckCircle2 } from "lucide-react"
+import { CloudRain, Sun, Wind, Activity, CheckCircle2, ThermometerSun } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { TextEffect } from '@/components/motion-primitives/text-effect'
 import { AnimatedGroup } from '@/components/motion-primitives/animated-group'
 import { HeroHeader } from "@/components/layouts/header"
 import { SEO } from "@/components/custom/seo"
+import { AppLogo } from "@/components/custom/app-logo"
+import { StatCard } from "@/components/custom/stat-card"
+import { SwitchBadge } from "@/components/ui/switch-badge"
 
 const transitionVariants: any = {
   item: {
@@ -210,27 +213,28 @@ export default function Home() {
               <div className="relative">
                 <div className="aspect-4/3 rounded-2xl bg-muted/50 border overflow-hidden shadow-2xl flex items-center justify-center">
                   <div className="grid grid-cols-2 gap-4 w-full h-full p-8">
-                    <div className="bg-background rounded-xl p-4 flex flex-col justify-between shadow-sm border">
-                      <div className="text-sm font-medium text-muted-foreground">Temperature</div>
-                      <div className="text-4xl font-bold text-foreground">32°C</div>
-                      <div className="text-xs text-destructive flex items-center gap-1"><Sun className="w-3 h-3" /> Sunny</div>
-                    </div>
-                    <div className="bg-background rounded-xl p-4 flex flex-col justify-between shadow-sm border">
-                      <div className="text-sm font-medium text-muted-foreground">Humidity</div>
-                      <div className="text-4xl font-bold text-foreground">45%</div>
-                      <div className="text-xs text-primary flex items-center gap-1"><Wind className="w-3 h-3" /> Ideal</div>
-                    </div>
-                    <div className="bg-background rounded-xl p-4 col-span-2 shadow-sm border flex items-center justify-between">
+                    <StatCard
+                      title="Temperature"
+                      value="32°C"
+                      icon={<ThermometerSun className="h-4 w-4 text-amber-500" />}
+                      color="bg-amber-500/10"
+                      desc="Live"
+                    />
+                    <StatCard
+                      title="Humidity"
+                      value="45%"
+                      icon={<Wind className="h-4 w-4 text-blue-500" />}
+                      color="bg-blue-500/10"
+                      desc="Live"
+                    />
+                    <div className="bg-background rounded-2xl p-6 col-span-2 shadow-sm border flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-medium text-muted-foreground mb-1">System Status</div>
-                        <div className="flex items-center gap-2">
-                          <span className="flex h-3 w-3 rounded-full bg-green-500 animate-pulse"></span>
-                          <span className="font-bold text-foreground">Active (Auto Mode)</span>
-                        </div>
+                        <div className="text-sm font-medium text-muted-foreground mb-2">System Status</div>
+                        <SwitchBadge status="online" size="md" />
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-medium text-muted-foreground mb-1">Servo Position</div>
-                        <div className="font-bold text-foreground">Extended (Out)</div>
+                        <div className="font-bold text-blue-500 text-lg">KELUAR</div>
                       </div>
                     </div>
                   </div>
@@ -246,8 +250,8 @@ export default function Home() {
 
       <footer className="py-12 px-6 lg:px-14 border-t bg-background">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2">
-            <CloudRain className="w-5 h-5 text-primary" />
+          <div className="flex items-center gap-4">
+            <AppLogo className="w-6 h-6 text-primary" />
             <span className="text-lg font-bold text-foreground">SmartLine</span>
           </div>
           <p className="text-sm text-muted-foreground">

@@ -154,8 +154,8 @@ export function ConfigurationThreshold() {
         </CardContent>
       </Card>
 
-      <Button onClick={handlePublishConfig} size="lg" className="w-full h-12 rounded-xl bg-primary hover:bg-primary font-bold">
-        Simpan Konfigurasi Cuaca Real-Time
+      <Button disabled={!isOnline} onClick={handlePublishConfig} size="lg" className="w-full h-12 rounded-xl bg-primary hover:bg-primary font-bold">
+        {isOnline ? "Simpan Konfigurasi Cuaca Real-Time" : "Perangkat Offline (Tidak Dapat Menyimpan)"}
       </Button>
     </div>
   );

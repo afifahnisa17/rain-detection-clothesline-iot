@@ -26,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const data = await response.json();
         return res.status(200).json({ success: data.ok });
-    } catch (error) {
+    } catch {
         return res.status(500).json({ error: 'Gagal mengirim ke Telegram' });
     }
 }

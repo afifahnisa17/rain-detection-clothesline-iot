@@ -62,9 +62,8 @@ export function ServoControl() {
       if (currentSeconds <= 0) {
         clearInterval(timeRef.current!);
         setTimeLeft(null);
-        sendCommand("MASUK");
+        handleCommand("MASUK");
         toast.success("Waktu habis! Jemuran otomatis ditarik masuk.");
-        triggerMovingUI();
       }
     }, 1000);
   }
@@ -75,9 +74,31 @@ export function ServoControl() {
     toast.error("Timer dibatalkan.");
   }
 
-  const triggerMovingUI = () => {
+  const [targetAction, setTargetAction] = useState<"MASUK" | "KELUAR" | null>(null);
+
+  useEffect(() => {
+    if (isMoving && targetAction && currentAction === targetAction) {
+      const actionRef = targetAction; // Capture for the toast
+      setTimeout(() => {
+        setIsMoving(false);
+        setTargetAction(null);
+        toast.success(`Jemuran berhasil ${actionRef === "MASUK" ? "dimasukkan" : "dikeluarkan"}!`);
+      }, 0);
+    }
+  }, [currentAction, isMoving, targetAction]);
+
+  const handleCommand = (action: "MASUK" | "KELUAR") => {
+    sendCommand(action);
+    setTargetAction(action);
     setIsMoving(true);
-    setTimeout(() => setIsMoving(false), 3000);
+    
+    toast.info(`Perintah ${action === "MASUK" ? "Masuk" : "Keluar"} sedang dikirim...`);
+    
+    // Fallback timeout in case ESP32 is stuck or network drops
+    setTimeout(() => {
+      setIsMoving(false);
+      setTargetAction(null);
+    }, 10000);
   }
 
   const handleInputChange = (field: "hh" | "mm" | "ss", value: string) => {
@@ -130,6 +151,7 @@ export function ServoControl() {
               <Button
                 variant={activeMode === "AUTO" ? "default" : "outline"}
                 onClick={() => sendCommand("AUTO")}
+                disabled={!isOnline}
                 className="h-16 flex flex-col gap-1 rounded-xl"
               >
                 <Activity className="w-4 h-4" />
@@ -138,6 +160,7 @@ export function ServoControl() {
               <Button
                 variant={activeMode === "MANUAL" ? "default" : "outline"}
                 onClick={() => sendCommand("MANUAL")}
+                disabled={!isOnline}
                 className="h-16 flex flex-col gap-1 rounded-xl"
               >
                 <Settings2 className="w-4 h-4" />
@@ -155,16 +178,16 @@ export function ServoControl() {
                     </span>
                   ) : (
                     <span className={`text-xs font-bold uppercase ${currentAction === "MASUK" ? "text-orange-500" : "text-green-500"}`}>
-                      {currentAction === "MASUK" ? "Tertutup" : "Terbuka"}
+                      {currentAction === "MASUK" ? "Masuk" : "Keluar"}
                     </span>
                   )}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Button variant="outline" size="lg" disabled={isMoving} onClick={() => { sendCommand("KELUAR"); triggerMovingUI(); }} className="rounded-xl h-12">
-                    <Play className="w-4 h-4 mr-2" /> Buka
+                  <Button variant="outline" size="lg" disabled={!isOnline || isMoving || currentAction === "KELUAR"} onClick={() => handleCommand("KELUAR")} className="rounded-xl h-12">
+                    <Play className="w-4 h-4 mr-2" /> Keluar
                   </Button>
-                  <Button variant="outline" size="lg" disabled={isMoving} onClick={() => { sendCommand("MASUK"); triggerMovingUI(); }} className="rounded-xl h-12">
-                    <Square className="w-4 h-4 mr-2" /> Tutup
+                  <Button variant="outline" size="lg" disabled={!isOnline || isMoving || currentAction === "MASUK"} onClick={() => handleCommand("MASUK")} className="rounded-xl h-12">
+                    <Square className="w-4 h-4 mr-2" /> Masuk
                   </Button>
                 </div>
               </div>

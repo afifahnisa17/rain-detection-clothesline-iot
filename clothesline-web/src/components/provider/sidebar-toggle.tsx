@@ -1,6 +1,7 @@
-import { CloudRain, LucidePanelLeft, Menu, PanelLeft, PanelLeftClose, PanelLeftIcon, PanelLeftOpen, PanelRightOpen } from "lucide-react"
+import { LucidePanelLeft, PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import { useSidebar } from "../ui/sidebar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
+import { AppLogo } from "../custom/app-logo"
 
 export default function SidebarToggle() {
     const { isMobile, state, toggleSidebar } = useSidebar()
@@ -10,12 +11,12 @@ export default function SidebarToggle() {
             <Tooltip>
                 <TooltipTrigger asChild>
                     <div
-                        className="group/exp relative flex items-center gap-2 rounded-md transition-all duration-200 shrink-0 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:hover:bg-sidebar-accent group-data-[collapsible=icon]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:cursor-pointer"
+                        className="group/exp relative flex items-center gap-3 rounded-md transition-all duration-200 shrink-0 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:hover:bg-sidebar-accent group-data-[collapsible=icon]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:cursor-pointer"
                         onClick={() => state === "collapsed" && toggleSidebar()}
                     >
                         {/* Normal Logo */}
-                        <div className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-secondary text-sidebar-foreground transition-all duration-200 group-data-[collapsible=icon]:group-hover/exp:opacity-0 group-data-[collapsible=icon]:group-hover/exp:scale-50">
-                            <CloudRain className="size-4" />
+                        <div className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 dark:bg-blue-500/20 transition-all duration-200 group-data-[collapsible=icon]:group-hover/exp:opacity-0 group-data-[collapsible=icon]:group-hover/exp:scale-50">
+                            <AppLogo className="w-5 h-5" />
                         </div>
                         {/* Expand Icon */}
                         <div className="absolute inset-y-0 left-0 flex aspect-square size-8 items-center justify-center opacity-0 scale-50 rounded-lg transition-all duration-200 group-data-[collapsible=icon]:group-hover/exp:opacity-100 group-data-[collapsible=icon]:group-hover/exp:scale-100">
