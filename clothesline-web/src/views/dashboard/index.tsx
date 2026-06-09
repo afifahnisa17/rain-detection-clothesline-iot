@@ -1,24 +1,11 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import {
   CloudRain,
   Sun,
@@ -26,14 +13,42 @@ import {
   Wind,
 } from "lucide-react";
 import { ServoControl } from "@/components/custom/servo-control";
-import { SensorChart } from "@/components/custom/sensor-chart";
+import { ConfigurationThreshold } from "@/components/custom/config-threshold";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const SensorChart = dynamic(
+  () => import("@/components/custom/sensor-chart").then((mod) => mod.SensorChart),
+  { 
+    ssr: false, 
+    loading: () => <Skeleton className="h-[350px] w-full rounded-xl bg-zinc-200 dark:bg-zinc-800" /> 
+  }
+);
 import { useMqtt } from "@/contexts/mqtt-context";
 import { formatNum } from "@/lib/format-number";
 import { StatCard } from "@/components/custom/stat-card";
-import { StatusCard } from "@/components/custom/servo-status-card";
+import { StatusCard } from "@/components/custom/servo-status-card"; // Pastikan nama file/path sudah sesuai
 
 export default function Dashboard() {
   const { latestData, rawHistory: chartData, isOnline, lastActionData } = useMqtt();
+  
+  // LOGIKA GABUNGAN: LDR + WAKTU (FRONTEND)
+  const getRealKondisi = () => {
+    const kondisiRaw = latestData?.kondisi || lastActionData?.kondisi || "———";
+    
+    // Ambil jam saat ini dari sistem/browser user (format 0-23)
+    const currentHour = new Date().getHours();
+    
+    // Jika sensor mendeteksi gelap, tapi masih antara jam 06:00 pagi - 17:59 sore
+    if (kondisiRaw === "Malam/Gelap" && currentHour >= 6 && currentHour < 18) {
+      return "Mendung"; // Berarti gelap karena mendung pekat (antisipasi hujan)
+    }
+    
+    return kondisiRaw;
+  };
+
+  // Terapkan kondisi yang sudah diproses
+  const kondisiCuaca = getRealKondisi();
 
   const stats = [
     {
@@ -55,11 +70,11 @@ export default function Dashboard() {
       value: formatNum(latestData?.ldr, 0) ? `${formatNum(latestData?.ldr, 0)} lux` : "—",
       icon: <Sun className="h-4 w-4 text-yellow-500" />,
       color: "bg-yellow-500/10",
-      desc: Number(latestData?.ldr) > 1600 ? "Dark" : "Normal"
+      desc: Number(latestData?.ldr) > 2000 ? "Dark" : "Normal"
     },
     {
       id: `rain-${latestData?.intensitasAir}`,
-      title: "Rain Status",
+      title: "Rain Intensity",
       value: formatNum(latestData?.intensitasAir, 0) ? `${formatNum(latestData?.intensitasAir, 0)}` : "—",
       icon: <CloudRain className="h-4 w-4 text-cyan-500" />,
       color: "bg-cyan-500/10",
@@ -75,23 +90,19 @@ export default function Dashboard() {
     const date = new Date(timestampValue);
     const now = new Date();
 
-    // Cek apakah hari, bulan, dan tahunnya sama dengan hari ini
     const isToday =
       date.getDate() === now.getDate() &&
       date.getMonth() === now.getMonth() &&
       date.getFullYear() === now.getFullYear();
 
-    // Ambil jam & menit (Contoh: "15:53")
     const timeString = date.toLocaleTimeString("id-ID", {
       hour: "2-digit",
       minute: "2-digit",
-    }).replace(/\./g, ':'); // Mengubah format titik 15.53 jadi titik dua 15:53 agar lebih standar
+    }).replace(/\./g, ':');
 
     if (isToday) {
-      // Jika hari ini, tampilkan "Hari ini, 15:53" atau cukup jamnya saja
       return `Hari ini, ${timeString}`;
     } else {
-      // Jika bukan hari ini, tampilkan tanggal ringkas "13 Mei, 15:53"
       const dateString = date.toLocaleDateString("id-ID", {
         day: "numeric",
         month: "short",
@@ -99,18 +110,19 @@ export default function Dashboard() {
       return `${dateString}, ${timeString}`;
     }
   };
+
   return (
     <>
-      <div className="flex flex-1 flex-col gap-4 p-3 md:p-8 pt-4">
+      <div className="flex flex-1 flex-col gap-4 p-3 md:px-8 md:pb-8 pt-4">
         <Tabs defaultValue="overview" className="w-full">
           <TabsList variant="line" className="flex justify-start overflow-x-auto no-scrollbar">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="control">Servo Control</TabsTrigger>
+            <TabsTrigger value="control">Control Panel</TabsTrigger>
             <TabsTrigger value="config">Configuration</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6 animate-in fade-in-50">
-            {/* 1. SENSOR STATS - Tetap 4 kolom di layar besar */}
+            {/* 1. SENSOR STATS */}
             <div className="grid grid-cols-2 gap-3 md:gap-4 md:grid-cols-2 lg:grid-cols-4">
               {stats?.map((stat, i) => (
                 <StatCard
@@ -124,10 +136,10 @@ export default function Dashboard() {
               ))}
             </div>
 
-            {/* 2. MAIN CHARTS & SERVO STATUS - Layout Grid Campuran */}
-            <div className="grid gap-6 lg:grid-cols-3 lg:items-start">
+            {/* 2. MAIN CHARTS & SERVO STATUS */}
+            <div className="grid gap-6 lg:grid-cols-3 items-stretch">
 
-              {/* Kolom Kiri & Tengah: Charts (Temperature & Humidity) */}
+              {/* Kolom Kiri & Tengah: Charts (Temperature, Humidity, Light Level) */}
               <div className="order-2 lg:order-1 lg:col-span-2 space-y-6">
                 <div className="grid gap-6 md:grid-cols-2">
                   <SensorChart
@@ -144,7 +156,6 @@ export default function Dashboard() {
                   />
                 </div>
 
-                {/* Light Level mengambil lebar penuh di kolom chart */}
                 <SensorChart
                   data={chartData}
                   title="Light Level"
@@ -154,10 +165,11 @@ export default function Dashboard() {
                 />
               </div>
 
-              {/* Kolom Kanan: Servo Status & Control Summary */}
-              <div className="order-1 lg:order-2 lg:col-span-1">
+              {/* Kolom Kanan: Servo Status & Kondisi Lingkungan */}
+              <div className="order-1 lg:order-2 lg:col-span-1 flex h-full">
                 <StatusCard
                   lastActionData={lastActionData}
+                  kondisiCuaca={kondisiCuaca}
                   formatSmartTime={formatSmartTime}
                 />
               </div>
@@ -176,108 +188,7 @@ export default function Dashboard() {
             value="config"
             className="space-y-6 animate-in fade-in-50"
           >
-            <Card className="rounded-2xl shadow-sm">
-              <CardHeader>
-                <CardTitle>Sensor Thresholds</CardTitle>
-                <CardDescription>
-                  Configure the trigger points for automatic retraction and
-                  extension.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-                  <div className="space-y-6 bg-amber-50 dark:bg-amber-900/10 p-6 rounded-xl border border-amber-100 dark:border-amber-900/30">
-                    <div className="flex items-center gap-2 mb-4">
-                      <ThermometerSun className="w-5 h-5 text-amber-500" />
-                      <h3 className="text-lg font-medium">
-                        Temperature & Humidity
-                      </h3>
-                    </div>
-                    <div className="space-y-3">
-                      <Label>Min Temperature (°C)</Label>
-                      <Input type="number" defaultValue="25" />
-                      <p className="text-xs text-muted-foreground">
-                        Clothesline extends if above this temperature.
-                      </p>
-                    </div>
-                    <div className="space-y-3">
-                      <Label>Max Humidity (%)</Label>
-                      <Input type="number" defaultValue="70" />
-                      <p className="text-xs text-muted-foreground">
-                        Clothesline retracts if above this humidity.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-6 bg-blue-50 dark:bg-blue-900/10 p-6 rounded-xl border border-blue-100 dark:border-blue-900/30">
-                    <div className="flex items-center gap-2 mb-4">
-                      <CloudRain className="w-5 h-5 text-blue-500" />
-                      <h3 className="text-lg font-medium">
-                        Rain & Light (LDR)
-                      </h3>
-                    </div>
-                    <div className="space-y-3">
-                      <Label>Rain Sensitivity (Intensity)</Label>
-                      <Select defaultValue="medium">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select sensitivity" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="high">
-                            High (Any Drop)
-                          </SelectItem>
-                          <SelectItem value="medium">
-                            Medium (Drizzle)
-                          </SelectItem>
-                          <SelectItem value="low">
-                            Low (Heavy Rain)
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-3">
-                      <Label>Min Light Intensity (Lux)</Label>
-                      <Input type="number" defaultValue="300" />
-                      <p className="text-xs text-muted-foreground">
-                        Clothesline retracts if light goes below this (Night
-                        mode).
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter className="bg-zinc-50 dark:bg-zinc-900/50 rounded-b-2xl border-t border-zinc-200 dark:border-zinc-800 p-6">
-                <div className="flex items-center justify-between w-full">
-                  <p className="text-sm text-muted-foreground">
-                    Changes to thresholds apply immediately in Auto Mode.
-                  </p>
-                  <Button>Save Configuration</Button>
-                </div>
-              </CardFooter>
-            </Card>
-
-            <Card className="rounded-2xl shadow-sm">
-              <CardHeader>
-                <CardTitle>Data Recording Frequency</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2 max-w-md">
-                  <Label>Log sensor data every:</Label>
-                  <Select defaultValue="60">
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select frequency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="5">5 Minutes</SelectItem>
-                      <SelectItem value="15">15 Minutes</SelectItem>
-                      <SelectItem value="30">30 Minutes</SelectItem>
-                      <SelectItem value="60">1 Hour</SelectItem>
-                      <SelectItem value="120">2 Hours</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
+            <ConfigurationThreshold />
           </TabsContent>
         </Tabs>
       </div>

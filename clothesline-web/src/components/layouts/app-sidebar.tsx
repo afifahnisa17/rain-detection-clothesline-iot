@@ -9,7 +9,8 @@ import {
   Settings,
   PlayCircle,
   BarChart3,
-  LayoutDashboard
+  LayoutDashboard,
+  History
 } from "lucide-react"
 
 import { NavMain } from "@/components/layouts/nav-main"
@@ -22,6 +23,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import SidebarToggle from "../provider/sidebar-toggle"
 
 // IoT Project Data
 const data = {
@@ -39,50 +41,25 @@ const data = {
   ],
   navMain: [
     {
-      title: "Overview",
+      title: "Dashboard",
       url: "/dashboard",
       icon: LayoutDashboard,
       isActive: true,
-      items: [
-        {
-          title: "Dashboard",
-          url: "/dashboard",
-        },
-        {
-          title: "Historical Data",
-          url: "/dashboard/history",
-        }
-      ],
+    },
+    {
+      title: "Historical Data",
+      url: "/dashboard/history",
+      icon: History,
     },
     {
       title: "Control Panel",
       url: "/dashboard/control",
       icon: PlayCircle,
-      items: [
-        {
-          title: "Servo Mode",
-          url: "/dashboard/control",
-        },
-        {
-          title: "Timer Schedule",
-          url: "/dashboard/control#timer",
-        }
-      ],
     },
     {
       title: "Configuration",
       url: "/dashboard/settings",
       icon: Settings2,
-      items: [
-        {
-          title: "Thresholds",
-          url: "/dashboard/settings",
-        },
-        {
-          title: "System Alerts",
-          url: "/dashboard/settings#alerts",
-        }
-      ],
     },
     {
       title: "Sensors",
@@ -114,6 +91,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
+        <SidebarToggle />
         <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>

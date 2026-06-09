@@ -31,9 +31,9 @@
   --sidebar-accent-foreground: oklch(0.4254 0.1159 144.3078);
   --sidebar-border: oklch(0.8805 0.0208 74.6428);
   --sidebar-ring: oklch(0.5234 0.1347 144.1672);
-  --font-sans: Montserrat, sans-serif;
-  --font-serif: Merriweather, serif;
-  --font-mono: Source Code Pro, monospace;
+  --font-sans: var(--font-montserrat), Montserrat, sans-serif;
+  --font-serif: var(--font-merriweather), Merriweather, serif;
+  --font-mono: var(--font-source-code-pro), Source Code Pro, monospace;
   --radius: 0.5rem;
   --shadow-x: 0;
   --shadow-y: 1px;

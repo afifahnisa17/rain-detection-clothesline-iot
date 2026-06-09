@@ -9,6 +9,8 @@ import { cn } from '@/lib/utils'
 import { ModeToggle } from '../provider/mode-toggle'
 import { ThemeSelector } from '../provider/theme-selector'
 
+import { AppLogo } from '../custom/app-logo'
+
 const menuItems = [
     { name: 'Home', href: '/' },
     { name: 'Features', href: '/#features' },
@@ -39,6 +41,7 @@ export const HeroHeader = () => {
                                 href="/"
                                 aria-label="home"
                                 className="flex items-center space-x-2">
+                                <AppLogo className="w-7 h-7 mr-3" />
                                 <span className="font-bold text-xl tracking-tight text-foreground">SmartLine</span>
                             </Link>
 

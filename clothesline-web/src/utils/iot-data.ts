@@ -1,4 +1,18 @@
-export type CommandPayload = "AUTO" | "MANUAL" | "TIMER" | "MASUK" | "KELUAR";
+export type CommandPayload = 
+  | "AUTO" 
+  | "MANUAL" 
+  | "TIMER" 
+  | "MASUK" 
+  | "KELUAR"
+  | {
+      batasSuhu: number;
+      batasLembab: number;
+      ldrTerik: number;
+      ldrBerawan: number;
+      ldrMendung: number;
+      hujanKering: number;
+      hujanGerimis: number;
+    };
 
 export interface IoTData {
     timestamp: string;
@@ -10,6 +24,7 @@ export interface IoTData {
     intensitasAir: number;
     mode: string;
     status: boolean;
+    kondisi: string;
 }
 
 export const normalizeIoTData = (item: any): IoTData => {
@@ -37,5 +52,6 @@ export const normalizeIoTData = (item: any): IoTData => {
         status: item.statusDiLuar !== undefined
             ? item.statusDiLuar === 0
             : item.cuacaBuruk === 1,
+        kondisi: item.kondisi ?? "Mendeteksi...",
     };
 };

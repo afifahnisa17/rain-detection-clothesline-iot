@@ -1,14 +1,19 @@
 import { ReactElement } from "react";
 import SystemLogsPage from "@/views/dashboard/logs/system";
+import { SEO } from "@/components/custom/seo";
 import DashboardLayout from "@/views/dashboard/layout";
 
 const SystemLogs = () => {
-  return <SystemLogsPage />;
+  return (
+    <>
+      <SEO title="Log Sistem - Smart Clothesline IoT" />
+      <SystemLogsPage />
+    </>
+  );
 };
 
 SystemLogs.getLayout = function getLayout(page: ReactElement) {
   const breadcrumbs = [
-    { label: "Dashboard", href: "/dashboard" },
     { label: "System Logs" },
   ];
 

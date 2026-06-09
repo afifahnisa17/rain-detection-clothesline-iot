@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -35,10 +36,10 @@ export function DashboardHeader({ breadcrumbs }: DashboardHeaderProps) {
             <div className="flex items-center justify-between w-full px-4">
                 {/* LEFT SIDE: Sidebar & Breadcrumbs */}
                 <div className="flex items-center gap-2">
-                    <SidebarTrigger className="-ml-1" />
+                    <SidebarTrigger className="-ml-1 md:hidden" />
                     <Separator
                         orientation="vertical"
-                        className="mr-2 data-[orientation=vertical]:h-4"
+                        className="mr-2 data-[orientation=vertical]:h-4 md:hidden"
                     />
                     <Breadcrumb>
                         <BreadcrumbList>
@@ -48,7 +49,9 @@ export function DashboardHeader({ breadcrumbs }: DashboardHeaderProps) {
                                         {index === breadcrumbs.length - 1 ? (
                                             <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
                                         ) : (
-                                            <BreadcrumbLink href={crumb.href}>{crumb.label}</BreadcrumbLink>
+                                            <BreadcrumbLink asChild>
+                                                <Link href={crumb.href || "#"}>{crumb.label}</Link>
+                                            </BreadcrumbLink>
                                         )}
                                     </BreadcrumbItem>
                                     {index < breadcrumbs.length - 1 && (

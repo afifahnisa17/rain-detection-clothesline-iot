@@ -1,4 +1,5 @@
-#include <Arduino.h> // Wajib ada di PlatformIO
+#include <ArduinoJson.h>
+#include <Arduino.h>
 #include <ESP32Servo.h>
 #include <DHT.h>
 #include <WiFi.h>
@@ -25,10 +26,25 @@ Servo servoJemuran;
 #define LDR_PIN 34
 #define RAIN_ANALOG 35
 
-const float BATAS_LEMBAB = 80.0;
-const float BATAS_SUHU = 25.0;
-const int BATAS_GELAP = 2500;
-const int BATAS_HUJAN = 3600;
+float BATAS_LEMBAB = 80.0;
+float BATAS_SUHU = 25.0;
+
+// =====================
+// RENTANG SENSOR CAHAYA (Makin kecil = Terang)
+// =====================
+int LDR_TERIK   = 800;   // 0 - 800: Cerah Terik
+int LDR_BERAWAN = 1800;  // 801 - 1800: Berawan Sebagian
+int LDR_MENDUNG = 2800;  // 1801 - 2800: Mendung Gelap
+// > 2800: Malam / Sangat Gelap
+// const int BATAS_GELAP = 2500;
+
+// =====================
+// RENTANG SENSOR HUJAN (Makin kecil = Basah)
+// =====================
+int HUJAN_KERING  = 3800;  // > 3800: Tidak ada air
+int HUJAN_GERIMIS = 2500;  // 2500 - 3800: Ada tetesan (Gerimis)
+// < 2500: Hujan Deras
+// const int BATAS_HUJAN = 3600;
 
 // =====================
 // KONFIGURASI SERVO 360
@@ -36,7 +52,7 @@ const int BATAS_HUJAN = 3600;
 const int PUTAR_MASUK = 0;
 const int PUTAR_KELUAR = 180;
 const int BERHENTI = 90;
-const int DURASI_PUTAR = 3000;
+const int DURASI_PUTAR = 5000;
 
 bool statusDiLuar = false;
 bool modeAuto = true;
@@ -67,6 +83,7 @@ String topicStatus;
 String topicKontrol;
 String topicPair;
 String topicWifiReset;
+String topicConfig;
 
 // Deklarasi Fungsi
 void setLeds(bool dalam, bool proses, bool luar);
@@ -88,6 +105,7 @@ void setupTopics()
   topicKontrol = "jemuran/" + deviceId + "/kontrol";
   topicPair = "jemuran/" + deviceId + "/pair";
   topicWifiReset = "jemuran/" + deviceId + "/wifi-reset";
+  topicConfig = "jemuran/" + deviceId + "/config";
 }
 
 // Fungsi eksekusi pergerakan (agar tidak ngulang kode)
@@ -96,8 +114,18 @@ void gerakJemuran(String aksi, String asal) {
     Serial.println(asal + ": Menarik jemuran MASUK...");
     setLeds(false, true, false);
     servoJemuran.write(PUTAR_MASUK);
-    delay(DURASI_PUTAR);
+
+    unsigned long start = millis();
+    Serial.println("Mulai MASUK at: " + String(start));
+    while (millis() - start < (unsigned long)DURASI_PUTAR) {
+      client.loop();
+      delay(10);
+    }
+
     servoJemuran.write(BERHENTI);
+    unsigned long end = millis();
+    Serial.println("Selesai MASUK at: " + String(end) + ", durasi(ms): " + String(end - start));
+
     statusDiLuar = false;
     setLeds(true, false, false);
     client.publish(topicStatus.c_str(), ("EVENT: MASUK (" + asal + ")").c_str());
@@ -106,8 +134,18 @@ void gerakJemuran(String aksi, String asal) {
     Serial.println(asal + ": Mendorong jemuran KELUAR...");
     setLeds(false, true, false);
     servoJemuran.write(PUTAR_KELUAR);
-    delay(DURASI_PUTAR);
+
+    unsigned long start = millis();
+    Serial.println("Mulai KELUAR at: " + String(start));
+    while (millis() - start < (unsigned long)DURASI_PUTAR) {
+      client.loop();
+      delay(10);
+    }
+
     servoJemuran.write(BERHENTI);
+    unsigned long end = millis();
+    Serial.println("Selesai KELUAR at: " + String(end) + ", durasi(ms): " + String(end - start));
+
     statusDiLuar = true;
     setLeds(false, false, true);
     client.publish(topicStatus.c_str(), ("EVENT: KELUAR (" + asal + ")").c_str());
@@ -127,6 +165,36 @@ void callback(char *topic, byte *payload, unsigned int length)
 
   String topicStr = String(topic);
   Serial.println("Pesan Web masuk [" + topicStr + "]: " + pesan);
+
+  // Logika Handle Konfigurasi Threshold
+  if (topicStr == topicConfig) {
+    StaticJsonDocument<512> doc;
+    DeserializationError error = deserializeJson(doc, pesan);
+
+    if (!error) {
+      // Konfigurasi DHT
+      if (doc.containsKey("batasSuhu")) BATAS_SUHU = doc["batasSuhu"];
+      if (doc.containsKey("batasLembab")) BATAS_LEMBAB = doc["batasLembab"];
+
+      // Konfigurasi Multi-level LDR
+      if (doc.containsKey("ldrTerik")) LDR_TERIK = doc["ldrTerik"];
+      if (doc.containsKey("ldrBerawan")) LDR_BERAWAN = doc["ldrBerawan"];
+      if (doc.containsKey("ldrMendung")) LDR_MENDUNG = doc["ldrMendung"];
+
+      // Konfigurasi Multi-level Hujan
+      if (doc.containsKey("hujanKering")) HUJAN_KERING = doc["hujanKering"];
+      if (doc.containsKey("hujanGerimis")) HUJAN_GERIMIS = doc["hujanGerimis"];
+
+      Serial.println("==========================================");
+      Serial.println(" Threshold Tingkatan Cuaca Berhasil Diubah Real-Time!");
+      Serial.printf(" LDR: Terik<%d, Berawan<%d, Mendung<%d\n", LDR_TERIK, LDR_BERAWAN, LDR_MENDUNG);
+      Serial.printf(" Hujan: Kering>%d, Gerimis>%d\n", HUJAN_KERING, HUJAN_GERIMIS);
+      Serial.println("==========================================");
+    } else {
+      Serial.print("Gagal parsing JSON Config: ");
+      Serial.println(error.c_str());
+    }
+  }
 
   if (topicStr == topicKontrol)
   {
@@ -235,6 +303,7 @@ void reconnectMQTT()
       client.subscribe(topicKontrol.c_str());
       client.subscribe(topicPair.c_str());
       client.subscribe(topicWifiReset.c_str());
+      client.subscribe(topicConfig.c_str());
     }
     else
     {
@@ -323,9 +392,29 @@ void loop()
     int nilaiLDR = bacaSensorStabil(LDR_PIN);
     int intensitasAir = bacaSensorStabil(RAIN_ANALOG);
 
-    bool gelap = (nilaiLDR > BATAS_GELAP);
-    bool sedangHujan = (intensitasAir < BATAS_HUJAN);
-    bool cuacaBuruk = sedangHujan || gelap || (lembab > BATAS_LEMBAB) || (suhu < BATAS_SUHU);
+    // bool gelap = (nilaiLDR > BATAS_GELAP);
+    // bool sedangHujan = (intensitasAir < BATAS_HUJAN);
+    // bool cuacaBuruk = sedangHujan || gelap || (lembab > BATAS_LEMBAB) || (suhu < BATAS_SUHU);
+
+    // --- LOGIKA PENENTUAN STATUS CUACA ---
+    String kondisiCuaca = "Tidak Diketahui";
+
+    if (intensitasAir < HUJAN_GERIMIS) {
+        kondisiCuaca = "Hujan Deras";
+    } else if (intensitasAir < HUJAN_KERING) {
+        kondisiCuaca = "Gerimis";
+    } else if (nilaiLDR > LDR_MENDUNG) {
+        kondisiCuaca = "Malam/Gelap";
+    } else if (nilaiLDR > LDR_BERAWAN) {
+        kondisiCuaca = "Mendung";
+    } else if (nilaiLDR > LDR_TERIK) {
+        kondisiCuaca = "Berawan";
+    } else {
+        kondisiCuaca = "Cerah Terik";
+    }
+
+    // Jemuran masuk JIKA Gerimis, Mendung, Hujan Deras, Malam, atau Mendung
+    bool cuacaBuruk = (intensitasAir < HUJAN_GERIMIS) || (intensitasAir < HUJAN_KERING) || (nilaiLDR > LDR_MENDUNG) || (nilaiLDR > LDR_BERAWAN) || (lembab > BATAS_LEMBAB) || (suhu < BATAS_SUHU);
 
     // Hitung sisa timer (jika aktif)
     long sisaTimerDetik = 0;
@@ -334,10 +423,12 @@ void loop()
       if (sisaTimerDetik < 0) sisaTimerDetik = 0;
     }
 
-    char msg[350]; // Perbesar buffer untuk menampung JSON timer
+    // --- KIRIM DATA KE MQTT ---
+    char msg[400]; // Buffer diperbesar untuk menampung field 'kondisi'
     snprintf(msg, sizeof(msg),
-             "{\"suhu\":%.1f,\"lembab\":%.1f,\"ldr\":%d,\"intensitasAir\":%d,\"cuacaBuruk\":%d,\"mode\":\"%s\",\"statusDiLuar\":%d,\"deviceId\":\"%s\",\"timerAktif\":%d,\"timerAksi\":\"%s\",\"sisaTimer\":%ld}",
-             suhu, lembab, nilaiLDR, intensitasAir, cuacaBuruk ? 1 : 0, modeAuto ? "AUTO" : "MANUAL", statusDiLuar ? 1 : 0, deviceId.c_str(), timerAktif ? 1 : 0, aksiTimer.c_str(), sisaTimerDetik);
+             "{\"suhu\":%.1f,\"lembab\":%.1f,\"ldr\":%d,\"intensitasAir\":%d,\"cuacaBuruk\":%d,\"mode\":\"%s\",\"statusDiLuar\":%d,\"deviceId\":\"%s\",\"timerAktif\":%d,\"timerAksi\":\"%s\",\"sisaTimer\":%ld,\"kondisi\":\"%s\"}",
+             suhu, lembab, nilaiLDR, intensitasAir, cuacaBuruk ? 1 : 0, modeAuto ? "AUTO" : "MANUAL", statusDiLuar ? 1 : 0, deviceId.c_str(), timerAktif ? 1 : 0, aksiTimer.c_str(), sisaTimerDetik, kondisiCuaca.c_str());
+    
     client.publish(topicData.c_str(), msg);
 
     // === 3. LOGIKA AUTO ===

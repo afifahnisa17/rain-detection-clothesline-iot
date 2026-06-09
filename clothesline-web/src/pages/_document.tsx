@@ -4,6 +4,8 @@ export default function Document() {
   return (
     <Html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <Head>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="manifest" href="/site.webmanifest" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

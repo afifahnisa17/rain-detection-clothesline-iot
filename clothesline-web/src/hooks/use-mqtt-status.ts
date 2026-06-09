@@ -5,6 +5,7 @@ import { CommandPayload, IoTData, normalizeIoTData } from "@/utils/iot-data";
 import { useState, useEffect, useRef } from "react";
 import { useFirebase } from "@/contexts/firebase-context";
 
+
 export function useMqttStatus(deviceId: string | null) {
   const [isOnline, setIsOnline] = useState<boolean>(false);
   const [latestData, setLatestData] = useState<IoTData | null>(null);
@@ -13,7 +14,6 @@ export function useMqttStatus(deviceId: string | null) {
 
   const mqttClientRef = useRef<any>(null);
   const { historyData, isLoading } = useFirebase();
-
   useEffect(() => {
     if (!isLoading && historyData.length > 0 && lastActionData === null) {
       const currentData = historyData[0];
@@ -106,9 +106,22 @@ export function useMqttStatus(deviceId: string | null) {
       console.error("MQTT not connected or no device selected");
       return;
     }
-    const topic = `jemuran/${deviceId}/kontrol`;
-    mqttClientRef.current.publish(topic, payload);
-    console.log(`Command sent to ${topic}: ${payload}`);
+    // Convert payload to string if it's an object
+    const messageToSend = typeof payload === 'string' ? payload : JSON.stringify(payload);
+    const topicKontrol = `jemuran/${deviceId}/kontrol`;
+    mqttClientRef.current.publish(topicKontrol, messageToSend);
+    console.log(`Command sent to ${topicKontrol}: ${messageToSend}`);
+  };
+
+  const sendConfig = (config: any) => {
+    if (!deviceId || !mqttClientRef.current) {
+      console.error("MQTT not connected or no device selected");
+      return;
+    }
+    const messageToSend = typeof config === 'string' ? config : JSON.stringify(config);
+    const topicConfigFinal = `jemuran/${deviceId}/config`;
+    mqttClientRef.current.publish(topicConfigFinal, messageToSend);
+    console.log(`Config sent to ${topicConfigFinal}: ${messageToSend}`);
   };
 
   const pingDevice = (targetDeviceId: string): Promise<boolean> => {
@@ -157,5 +170,5 @@ export function useMqttStatus(deviceId: string | null) {
     });
   };
 
-  return { isOnline, latestData, rawHistory, lastActionData, sendCommand, pingDevice };
+  return { isOnline, latestData, rawHistory, lastActionData, sendCommand, sendConfig, pingDevice };
 }

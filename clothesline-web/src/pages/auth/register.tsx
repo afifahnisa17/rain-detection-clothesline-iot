@@ -1,10 +1,14 @@
 import ViewRegister from "../../views/auth/register";
+import { SEO } from "@/components/custom/seo";
 
 const Register = () => {
     return (
-        <div>
+        <>
+            <SEO title="Register - Smart Clothesline IoT" />
+            <div>
             <ViewRegister></ViewRegister>
         </div>
+        </>
     );
 };
 
