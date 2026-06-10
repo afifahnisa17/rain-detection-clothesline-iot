@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMqtt } from "@/contexts/mqtt-context";
 import { useDevice } from "@/contexts/device-context";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -26,6 +26,29 @@ export function ConfigurationThreshold() {
   
   const [hujanKering, setHujanKering] = useState(3800);
   const [hujanGerimis, setHujanGerimis] = useState(2500);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    if (deviceId) {
+      const savedConfig = localStorage.getItem(`config_${deviceId}`);
+      if (savedConfig) {
+        try {
+          const parsed = JSON.parse(savedConfig);
+          setTimeout(() => {
+            if (parsed.batasSuhu !== undefined) setSuhu(parsed.batasSuhu);
+            if (parsed.batasLembab !== undefined) setKelembaban(parsed.batasLembab);
+            if (parsed.ldrTerik !== undefined) setLdrTerik(parsed.ldrTerik);
+            if (parsed.ldrBerawan !== undefined) setLdrBerawan(parsed.ldrBerawan);
+            if (parsed.ldrMendung !== undefined) setLdrMendung(parsed.ldrMendung);
+            if (parsed.hujanKering !== undefined) setHujanKering(parsed.hujanKering);
+            if (parsed.hujanGerimis !== undefined) setHujanGerimis(parsed.hujanGerimis);
+          }, 0);
+        } catch (e) {
+          console.error("Failed to parse config from localStorage", e);
+        }
+      }
+    }
+  }, [deviceId]);
 
   const handlePublishConfig = () => {
     if (!deviceId) {
@@ -53,6 +76,7 @@ export function ConfigurationThreshold() {
       hujanGerimis: Number(hujanGerimis),
     };
 
+    localStorage.setItem(`config_${deviceId}`, JSON.stringify(payload));
     sendConfig(payload);
     if (isOnline) {
       toast.success("Konfigurasi multi-threshold cuaca berhasil diterapkan!");
